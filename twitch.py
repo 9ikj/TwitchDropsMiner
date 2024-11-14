@@ -652,7 +652,7 @@ class Twitch:
                 priority = self.settings.priority
                 priority_mode = self.settings.priority_mode
                 priority_only = priority_mode is PriorityMode.PRIORITY_ONLY
-                next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
+                next_hour = datetime.now(timezone.utc) + timedelta(minutes=30)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
                 sorted_campaigns: list[DropsCampaign] = self.inventory
                 if not priority_only:
@@ -731,7 +731,7 @@ class Twitch:
                 # NOTE: we use another set so that we can set them online separately
                 no_acl: set[Game] = set()
                 acl_channels: set[Channel] = set()
-                next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
+                next_hour = datetime.now(timezone.utc) + timedelta(minutes=30)
                 for campaign in self.inventory:
                     if (
                         campaign.game in self.wanted_games
@@ -936,8 +936,8 @@ class Twitch:
 
     @task_wrapper(critical=True)
     async def _maintenance_task(self) -> None:
-        claim_period = timedelta(minutes=30)
-        max_period = timedelta(hours=1)
+        claim_period = timedelta(minutes=10)
+        max_period = timedelta(minutes=30)
         now = datetime.now(timezone.utc)
         next_period = now + max_period
         while True:
@@ -1512,7 +1512,7 @@ class Twitch:
         self.inventory.clear()
         self._mnt_triggers.clear()
         switch_triggers: set[datetime] = set()
-        next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
+        next_hour = datetime.now(timezone.utc) + timedelta(minutes=30)
         # add the campaigns to the internal inventory
         for campaign in campaigns:
             self._drops.update({drop.id: drop for drop in campaign.drops})
