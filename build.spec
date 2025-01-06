@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import platform
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
@@ -14,6 +15,7 @@ from constants import WORKING_DIR, SITE_PACKAGES_PATH, DEFAULT_LANG
 if TYPE_CHECKING:
     from PyInstaller.building.api import PYZ, EXE
     from PyInstaller.building.build_main import Analysis
+
 
 # (source_path, dest_path, required)
 to_add: list[tuple[Path, str, bool]] = [
@@ -31,7 +33,7 @@ for lang_filepath in WORKING_DIR.joinpath("lang").glob("*.json"):
     if lang_filepath.stem != DEFAULT_LANG:
         to_add.append((lang_filepath, "lang", True))
 
-# ensure the required to-be-added data exists
+# Ensure the required to-be-added data exists
 datas: list[tuple[Path, str]] = []
 for source_path, dest_path, required in to_add:
     if source_path.exists():
@@ -51,8 +53,15 @@ hiddenimports: list[str] = [
 
 if sys.platform == "linux":
     # Needed files for better system tray support on Linux via pystray (AppIndicator backend).
-    datas.append((Path("/usr/lib/girepository-1.0/AppIndicator3-0.1.typelib"), "gi_typelibs"))
-    binaries.append((Path("/lib/x86_64-linux-gnu/libappindicator3.so.1"), "."))
+    arch = platform.machine()
+    datas.append(
+        (
+            Path(f"/usr/lib/{arch}-linux-gnu/girepository-1.0/AyatanaAppIndicator3-0.1.typelib"),
+            "gi_typelibs",
+        )
+    )
+    binaries.append((Path(f"/usr/lib/{arch}-linux-gnu/libayatana-appindicator3.so.1"), "."))
+
     hiddenimports.extend([
         "gi.repository.Gtk",
         "gi.repository.GObject",
